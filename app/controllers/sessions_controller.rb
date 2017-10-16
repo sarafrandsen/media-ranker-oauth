@@ -13,7 +13,7 @@ class SessionsController < ApplicationController
 
       else
         flash[:status] = :success
-        flash[:message] = "Successfully logged in as returning user #{user.name}"
+        flash[:message] = "Successfully logged in as returning user #{user.username}"
 
       end
       session[:user_id] = user.id
