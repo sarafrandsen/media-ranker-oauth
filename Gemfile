@@ -57,7 +57,11 @@ group :test do
   gem 'minitest-skip'
 end
 
+gem 'omniauth'
+gem 'omniauth-github'
+
 group :development do
+  gem 'dotenv-rails'
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
   gem 'web-console', '>= 3.3.0'
   gem 'listen', '~> 3.0.5'
