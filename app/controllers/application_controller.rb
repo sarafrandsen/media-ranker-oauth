@@ -9,17 +9,17 @@ class ApplicationController < ActionController::Base
     raise ActionController::RoutingError.new('Not Found')
   end
 
-private
-  def find_merchant
-    if session[:merchant_id]
-      @login_merchant = Merchant.find_by(id: session[:merchant_id])
+  private
+  def find_user
+    if session[:user_id]
+      @login_user = User.find_by(id: session[:user_id])
     end
   end
 
-protected
+  protected
   def require_login
-    @merchant = Merchant.find_by(id: session[:merchant_id])
-    unless @merchant
+    @user = User.find_by(id: session[:user_id])
+    unless @user
       flash[:status] = :failure
       flash[:message] = "You must be logged in to do that!"
       redirect_to root_path
@@ -39,5 +39,11 @@ protected
     end
 
     return result
+  end
+
+  def find_user
+    if session[:user_id]
+      @login_user = User.find_by(id: session[:user_id])
+    end
   end
 end
