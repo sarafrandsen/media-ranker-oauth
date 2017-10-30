@@ -30,32 +30,38 @@ class WorksController < ApplicationController
 
   def create
     @work = Work.new(media_params)
+    @work.user_id = @login_user.id
     @media_category = @work.category
-    @work.user_id = session[:user_id]
-    if @work.user_id
-      if @work.save
-        flash[:status] = :success
-        flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
-        redirect_to work_path(@work)
-      else
-        flash[:status] = :failure
-        flash[:result_text] = "Could not create #{@media_category.singularize}"
-        flash[:messages] = @work.errors.messages
-        render :new, status: :bad_request
-      end
+    if @work.save
+      flash[:status] = :success
+      flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
+      redirect_to work_path(@work)
     else
       flash[:status] = :failure
-      flash[:result_text] = "You must be logged in to do that!"
+      flash[:result_text] = "Could not create #{@media_category.singularize}"
       flash[:messages] = @work.errors.messages
-      redirect_towork_path(@work)
+      render :new, status: :bad_request
     end
   end
 
   def show
-    @votes = @work.votes.order(created_at: :desc)
+    if find_user
+      @votes = @work.votes.order(created_at: :desc)
+    else
+      redirect_to root_path
+    end
   end
 
   def edit
+    if find_user
+      if @work.user_id != @login_user.id
+        flash[:status] = :failure
+        flash[:result_text] = "Only the owner can edit this #{@media_category.singularize}"
+        redirect_to work_path(@work.id)
+      end
+    else
+      redirect_to root_path
+    end
   end
 
   def update
