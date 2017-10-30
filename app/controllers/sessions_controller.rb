@@ -1,6 +1,10 @@
 class SessionsController < ApplicationController
-  skip_before_action :require_login, only: [:login]
+  skip_before_action :require_login
 
+  def index
+    @user = User.find(session[:user_id]) # < recalls the value set in a previous request
+  end
+  
   def login
     auth_hash = request.env['omniauth.auth']
 
