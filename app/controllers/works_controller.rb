@@ -12,11 +12,20 @@ class WorksController < ApplicationController
   end
 
   def index
-    @works_by_category = Work.to_category_hash
+    if find_user
+      @works_by_category = Work.to_category_hash
+    else
+      redirect_to root_path
+    end
   end
 
+
   def new
-    @work = Work.new
+    if find_user
+      @work = Work.new
+    else
+      redirect_to root_path
+    end
   end
 
   def create

@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
 
     if auth_hash['uid']
       user = User.find_by(provider: params[:provider], uid: auth_hash['uid'])
-      if user.nil? # no existing user
+      if user.nil?
         user = User.from_auth_hash(params[:provider], auth_hash)
         save_and_flash(user)
         puts "User: #{user}"
@@ -34,8 +34,6 @@ class SessionsController < ApplicationController
     if auth_hash['uid']
       user = User.find_by(provider: params[:provider], uid: auth_hash['uid'])
       if user.nil?
-        # User has not logged in before
-        # Create a new record in the DB
         user = User.from_auth_hash(params[:provider], auth_hash)
         save_and_flash(user)
 
