@@ -10,16 +10,16 @@ class ApplicationController < ActionController::Base
   end
 
 private
-  def find_user
-    if session[:user_id]
-      @login_user = User.find_by(id: session[:user_id])
+  def find_merchant
+    if session[:merchant_id]
+      @login_merchant = Merchant.find_by(id: session[:merchant_id])
     end
   end
-  
+
 protected
   def require_login
-    @user = User.find_by(id: session[:user_id])
-    unless @user
+    @merchant = Merchant.find_by(id: session[:merchant_id])
+    unless @merchant
       flash[:status] = :failure
       flash[:message] = "You must be logged in to do that!"
       redirect_to root_path
