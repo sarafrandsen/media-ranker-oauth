@@ -2,7 +2,7 @@ class SessionsController < ApplicationController
   skip_before_action :require_login, only: [:create]
 
   def index
-    @user = User.find(session[:user_id]) # < recalls the value set in a previous request
+    @user = User.find(session[:user_id])
   end
 
   def create
