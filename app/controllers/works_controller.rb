@@ -2,7 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
-  skip_before_action :require_login, only: [:root, :show]
+  skip_before_action :require_login, only: [:root, :index, :show, :upvote, :create]
 
   def root
     @albums = Work.best_albums
@@ -23,15 +23,22 @@ class WorksController < ApplicationController
     @work = Work.new(media_params)
     @media_category = @work.category
     @work.user_id = session[:user_id]
-    if @work.save
-      flash[:status] = :success
-      flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
-      redirect_to work_path(@work)
+    if @work.user_id
+      if @work.save
+        flash[:status] = :success
+        flash[:result_text] = "Successfully created #{@media_category.singularize} #{@work.id}"
+        redirect_to work_path(@work)
+      else
+        flash[:status] = :failure
+        flash[:result_text] = "Could not create #{@media_category.singularize}"
+        flash[:messages] = @work.errors.messages
+        render :new, status: :bad_request
+      end
     else
       flash[:status] = :failure
-      flash[:result_text] = "Could not create #{@media_category.singularize}"
+      flash[:result_text] = "You must be logged in to do that!"
       flash[:messages] = @work.errors.messages
-      render :new, status: :bad_request
+      redirect_towork_path(@work)
     end
   end
 
@@ -99,7 +106,7 @@ class WorksController < ApplicationController
 
     # Refresh the page to show either the updated vote count
     # or the error message
-    redirect_back fallback_location: work_path(@work), status: status
+    redirect_to fallback_location: work_path(@work), status: status
   end
 
   private
