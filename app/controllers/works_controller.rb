@@ -2,7 +2,7 @@ class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
   before_action :category_from_work, except: [:root, :index, :new, :create]
-  skip_before_action :require_login, only: [:root]
+  skip_before_action :require_login, only: [:root, :show]
 
   def root
     @albums = Work.best_albums
@@ -30,7 +30,7 @@ class WorksController < ApplicationController
     else
       flash[:status] = :failure
       flash[:result_text] = "Could not create #{@media_category.singularize}"
-      flash[:messages] = @work.errors.message
+      flash[:messages] = @work.errors.messages
       render :new, status: :bad_request
     end
   end
