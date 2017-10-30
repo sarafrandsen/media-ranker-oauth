@@ -43,7 +43,12 @@ class WorksController < ApplicationController
   end
 
   def update
-    @work.update_attributes(media_params)
+    if @work.user_id != session[:user_id]
+      flash[:status] = :failure
+      flash[:result_text] = "Gotta own the work to update it!"
+      redirect_to root_path
+    else
+      @work.update_attributes(media_params)
     if @work.save
       flash[:status] = :success
       flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
