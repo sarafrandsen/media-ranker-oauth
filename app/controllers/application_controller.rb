@@ -18,12 +18,10 @@ private
 
 protected
   def require_login
-    puts ">>>>>>>>>>>>>>"
-    puts "require_login"
     @user = User.find_by(id: session[:user_id])
     unless @user
       flash[:status] = :failure
-      flash[:message] = "You must be logged in to do that!"
+      flash[:result_text] = "You must be logged in to do that!"
       redirect_to root_path
     end
   end

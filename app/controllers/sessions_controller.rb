@@ -13,12 +13,12 @@ class SessionsController < ApplicationController
 
       else
         flash[:status] = :success
-        flash[:message] = "Successfully logged in as returning user #{user.name}."
+        flash[:result_text] = "Successfully logged in as returning user #{user.name}."
       end
       session[:user_id] = user.id
     else
       flash[:status] = :failure
-      flash[:message] = "Something wrong wiht OAuth data."
+      flash[:result_text] = "Something wrong wiht OAuth data."
     end
 
     redirect_to root_path
@@ -35,14 +35,14 @@ class SessionsController < ApplicationController
 
       else
         flash[:status] = :success
-        flash[:message] = "Successfully logged in as returning user #{user.username}"
+        flash[:result_text] = "Successfully logged in as returning user #{user.username}"
 
       end
       session[:user_id] = user.id
 
     else
       flash[:status] = :failure
-      flash[:message] = "Could not create user from OAuth data"
+      flash[:result_text] = "Could not create user from OAuth data"
     end
 
     redirect_to root_path
@@ -51,7 +51,7 @@ class SessionsController < ApplicationController
   def logout
     session[:user_id] = nil
     flash[:status] = :success
-    flash[:message] = "You have been logged out"
+    flash[:result_text] = "You have been logged out"
     redirect_to root_path
   end
 end

@@ -12,19 +12,11 @@ class WorksController < ApplicationController
   end
 
   def index
-    if find_user
-      @works_by_category = Work.to_category_hash
-    else
-      redirect_to root_path
-    end
+    @works_by_category = Work.to_category_hash
   end
 
   def new
-    if find_user
-      @work = Work.new
-    else
-      redirect_to root_path
-    end
+    @work = Work.new
   end
 
   def create
@@ -44,22 +36,14 @@ class WorksController < ApplicationController
   end
 
   def show
-    if find_user
-      @votes = @work.votes.order(created_at: :desc)
-    else
-      redirect_to root_path
-    end
+    @votes = @work.votes.order(created_at: :desc)
   end
 
   def edit
-    if find_user
-      if @work.user_id != @login_user.id
-        flash[:status] = :failure
-        flash[:result_text] = "You do not have permissions to edit this #{@media_category.singularize}"
-        redirect_to work_path(@work.id)
-      end
-    else
-      redirect_to root_path
+    if @work.user_id != @login_user.id
+      flash[:status] = :failure
+      flash[:result_text] = "You do not have permissions to edit this #{@media_category.singularize}"
+      redirect_to work_path(@work.id)
     end
   end
 
@@ -96,20 +80,15 @@ class WorksController < ApplicationController
     # For status codes, see
     # http://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
     flash[:status] = :failure
-    if find_user
-      vote = Vote.new(user: @login_user, work: @work)
-      if vote.save
-        flash[:status] = :success
-        flash[:result_text] = "Successfully upvoted!"
-        status = :found
-      else
-        flash[:result_text] = "Could not upvote"
-        flash[:messages] = vote.errors.messages
-        status = :conflict
-      end
+    vote = Vote.new(user: @login_user, work: @work)
+    if vote.save
+      flash[:status] = :success
+      flash[:result_text] = "Successfully upvoted!"
+      status = :found
     else
-      flash[:result_text] = "You must log in to do that"
-      status = :unauthorized
+      flash[:result_text] = "Could not upvote"
+      flash[:messages] = vote.errors.messages
+      status = :conflict
     end
 
     # Refresh the page to show either the updated vote count
