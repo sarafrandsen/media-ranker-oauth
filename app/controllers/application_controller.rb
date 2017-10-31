@@ -18,6 +18,8 @@ private
 
 protected
   def require_login
+    puts ">>>>>>>>>>>>>>"
+    puts "require_login"
     @user = User.find_by(id: session[:user_id])
     unless @user
       flash[:status] = :failure

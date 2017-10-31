@@ -1,8 +1,8 @@
 class WorksController < ApplicationController
   # We should always be able to tell what category
   # of work we're dealing with
+  skip_before_action :require_login, only: [:root, :index, :show]
   before_action :category_from_work, except: [:root, :index, :new, :create]
-  skip_before_action :require_login, only: [:root, :index, :show, :upvote, :create]
 
   def root
     @albums = Work.best_albums
@@ -18,7 +18,6 @@ class WorksController < ApplicationController
       redirect_to root_path
     end
   end
-
 
   def new
     if find_user
@@ -56,7 +55,7 @@ class WorksController < ApplicationController
     if find_user
       if @work.user_id != @login_user.id
         flash[:status] = :failure
-        flash[:result_text] = "Only the owner can edit this #{@media_category.singularize}"
+        flash[:result_text] = "You do not have permissions to edit this #{@media_category.singularize}"
         redirect_to work_path(@work.id)
       end
     else
@@ -65,35 +64,29 @@ class WorksController < ApplicationController
   end
 
   def update
-    if @work.user_id != session[:user_id]
-      flash[:status] = :failure
-      flash[:result_text] = "Gotta own the work to update it!"
-      redirect_to root_path
-    else # if it belongs to the user, these are the success or fail msgs
-      @work.update_attributes(media_params)
-      if @work.save
-        flash[:status] = :success
-        flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
-        redirect_to work_path(@work)
-      else
-        flash.now[:status] = :failure
-        flash.now[:result_text] = "Could not update #{@media_category.singularize}"
-        flash.now[:messages] = @work.errors.messages
-        render :edit, status: :not_found
-      end
+    @work.update_attributes(media_params)
+    if @work.save
+      flash[:status] = :success
+      flash[:result_text] = "Successfully updated #{@media_category.singularize} #{@work.id}"
+      redirect_to work_path(@work)
+    else
+      flash.now[:status] = :failure
+      flash.now[:result_text] = "Could not update #{@media_category.singularize}"
+      flash.now[:messages] = @work.errors.messages
+      render :edit, status: :not_found
     end
   end
 
   def destroy
-    if @work.user_id != session[:user_id]
-      flash[:status] = :failure
-      flash[:result_text] = "You must own this work to delete it!"
-      redirect_to root_path
-    else
+    if @work.user_id == @login_user.id
       @work.destroy
       flash[:status] = :success
-      flash[:result_text] = "Successfully deleted #{@media_category.singularize} #{@work.id}."
+      flash[:result_text] = "Successfully destroyed #{@media_category.singularize} #{@work.id}"
       redirect_to root_path
+    else
+      flash[:status] = :failure
+      flash[:result_text] = "You do not have permissions to delete this #{@media_category.singularize}"
+      redirect_to work_path(@work.id)
     end
   end
 
@@ -103,7 +96,7 @@ class WorksController < ApplicationController
     # For status codes, see
     # http://stackoverflow.com/questions/3825990/http-response-code-for-post-when-resource-already-exists
     flash[:status] = :failure
-    if @login_user
+    if find_user
       vote = Vote.new(user: @login_user, work: @work)
       if vote.save
         flash[:status] = :success
@@ -121,7 +114,7 @@ class WorksController < ApplicationController
 
     # Refresh the page to show either the updated vote count
     # or the error message
-    redirect_to fallback_location: work_path(@work), status: status
+    redirect_back fallback_location: work_path(@work), status: status
   end
 
   private

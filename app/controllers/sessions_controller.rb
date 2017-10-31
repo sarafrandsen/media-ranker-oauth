@@ -1,9 +1,5 @@
 class SessionsController < ApplicationController
-  skip_before_action :require_login, only: [:create]
-
-  def index
-    @user = User.find(session[:user_id])
-  end
+  skip_before_action :require_login, only: [:create, :login]
 
   def create
     auth_hash = request.env['omniauth.auth']
